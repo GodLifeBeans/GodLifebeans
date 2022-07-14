@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.graphics.Paint;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +17,8 @@ import java.util.ArrayList;
 
 public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.CustomViewHolder> {
 
-    private ArrayList<Todo> arrayList;
+    private ArrayList<Todo> arrayList = new ArrayList<>();
+
     public TodoAdapter(ArrayList<Todo> arrayList)
     {
         this.arrayList = arrayList;
@@ -25,43 +27,72 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.CustomViewHold
 
     @NonNull
     @Override
-    public TodoAdapter.CustomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CustomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.todo_item,parent,false);
         CustomViewHolder holder = new CustomViewHolder(view);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TodoAdapter.CustomViewHolder holder, int position) {
-        holder.checkbox = (CheckBox)holder.itemView.findViewById(R.id.checkbox);
-        holder.tv_name=(TextView) holder.itemView.findViewById(R.id.tv_name);
-        holder.deleteTodo=(Button) holder.itemView.findViewById(R.id.deleteTodo);
-
+    public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
+       holder.tv_name=(TextView) holder.itemView.findViewById(R.id.tv_name);
+       holder.checkBox=(CheckBox)holder.itemView.findViewById(R.id.checkbox);
+       holder.deleteTodo=(Button) holder.itemView.findViewById(R.id.deleteTodo);
         holder.tv_name.setText(arrayList.get(position).getContent());
-        holder.checkbox.setChecked(arrayList.get(position).isCompleted());
+
         holder.deleteTodo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               Log.d("check","check");
+                remove(holder.getAdapterPosition());
             }
         });
+        holder.checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (holder.checkBox.isChecked()==true){
+                    holder.tv_name.setPaintFlags(holder.tv_name.getPaintFlags()| Paint.STRIKE_THRU_TEXT_FLAG);
+                }
+                else {
+                    holder.tv_name.setPaintFlags(0);
+                }
+            }
+        });
+
+    }
+    public void remove(int position){
+        try{
+            arrayList.remove(position);
+            notifyItemRemoved(position);
+        }catch (IndexOutOfBoundsException ex){
+            ex.printStackTrace();
+        }
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return (null != arrayList ? arrayList.size() : 0);
+    }
+
+
+    public Todo getItemCount(int position) {
+        return arrayList.get(position);
     }
 
     public class CustomViewHolder extends  RecyclerView.ViewHolder{
 
         protected TextView tv_name;
+        protected CheckBox checkBox;
         protected Button deleteTodo;
-        protected CheckBox checkbox;
+
         public CustomViewHolder(@NonNull View itemView) {
             super(itemView);
             this.tv_name=(TextView)itemView.findViewById(R.id.tv_name);
-            this.deleteTodo = (Button)itemView.findViewById(R.id.deleteTodo);
-            this.checkbox = (CheckBox)itemView.findViewById(R.id.checkbox);
+            this.deleteTodo=(Button)itemView.findViewById(R.id.deleteTodo);
+            this.checkBox = (CheckBox)itemView.findViewById(R.id.checkbox);
+        }
+
+        public Todo getItem(int position) {
+            return arrayList.get(position);
         }
     }
 }

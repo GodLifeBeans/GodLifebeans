@@ -15,8 +15,8 @@
 
         <CheckBox
             android:id="@+id/checkbox"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             />
         <TextView
             android:id="@+id/tv_name"
@@ -26,14 +26,18 @@
             android:layout_marginRight="10dp"
             android:layout_weight="1"
             android:text="입력"  />
+
         <Button
             android:id="@+id/deleteTodo"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="30dp"
+            android:gravity="center"
+            android:layout_height="wrap_content"
             android:text="X"
-            android:textColor="@color/white"
+            android:textColor="#030303"
             android:layout_marginRight="20dp"
-            android:background="#FACACA"/>
+            android:background="#FFAEAE"/>
+
+
 
     </LinearLayout>
 
