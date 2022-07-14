@@ -28,7 +28,7 @@ public class TodoActivity  extends AppCompatActivity {
     private Todo todo;
     private EditText input_todo;
     private Button submit;
-
+    private String Date = " ";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,32 +52,16 @@ public class TodoActivity  extends AppCompatActivity {
         //editText
         input_todo = (EditText)findViewById(R.id.input_todo);
 
+
+
         //날짜 선택
-        selectDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Calendar calendar = Calendar.getInstance();
-                int pYear = calendar.get(Calendar.YEAR);
-                int pMonth = calendar.get(Calendar.MONTH);
-                int pDay = calendar.get(Calendar.DAY_OF_MONTH);
-                datePickerDialog = new DatePickerDialog(TodoActivity.this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                        month = month + 1;
-                        String date = year + "/" + month + "/" + day;
-                        selectDate.setText(date);
-                    }
-                }, pYear, pMonth, pDay);
-                datePickerDialog.show();
-              //timeline.setSelectedDate(pYear, pMonth, pDay);
-            }
-        });
         timeline.setOnDateSelectedListener(new DatePickerTimeline.OnDateSelectedListener() {
             @Override
             public void onDateSelected(int year, int month, int day, int index) {
                 Log.d("여기","dateselect");
                 month = month+1;
-                Log.d("ondateselected", ""+year+month+day+index);
+                Log.d("ondateselected", ""+year+month+day);
+                Date = ""+year+month+day;
             }
         });
         submit.setOnClickListener(new View.OnClickListener() {
@@ -89,6 +73,8 @@ public class TodoActivity  extends AppCompatActivity {
                 todoAdapter.notifyDataSetChanged();;
             }
         });
+
+
 
     }
 
