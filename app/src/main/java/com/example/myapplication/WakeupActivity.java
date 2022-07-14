@@ -1,4 +1,6 @@
 package com.example.myapplication;
 
-public class WakeupActivity {
+import androidx.appcompat.app.AppCompatActivity;
+
+public class WakeupActivity extends AppCompatActivity {
 }

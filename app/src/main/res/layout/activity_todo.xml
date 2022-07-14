@@ -1,6 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:orientation="vertical"
     android:layout_height="match_parent">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/selectDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="select date"/>
+    <com.github.badoualy.datepicker.DatePickerTimeline
+        android:id="@+id/calendar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints" />
+    <EditText
+        android:id="@+id/todo"
+        android:layout_marginLeft="15dp"
+        android:paddingLeft="10dp"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:layout_marginRight="30dp"
+        android:hint="  todo"
+        />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/todoRV"
+        android:layout_width="match_parent"
+        android:layout_height="477dp"
+        android:layout_weight="1"
+        android:scrollbarFadeDuration="0"
+        android:scrollbarSize="5dp"
+        android:scrollbarThumbVertical="@android:color/holo_orange_light"
+        android:scrollbars="vertical">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+
+
+</LinearLayout>
