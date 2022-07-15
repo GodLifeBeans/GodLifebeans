@@ -38,8 +38,8 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.CustomViewHold
        holder.tv_name=(TextView) holder.itemView.findViewById(R.id.tv_name);
        holder.checkBox=(CheckBox)holder.itemView.findViewById(R.id.checkbox);
        holder.deleteTodo=(Button) holder.itemView.findViewById(R.id.deleteTodo);
-        holder.tv_name.setText(arrayList.get(position).getContent());
-
+       holder.tv_name.setText(arrayList.get(position).getContent());
+       holder.checkBox.setChecked(arrayList.get(position).isCompleted());
         holder.deleteTodo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,6 +55,9 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.CustomViewHold
                 else {
                     holder.tv_name.setPaintFlags(0);
                 }
+                Log.d("check state",""+ holder.checkBox.isChecked());
+                Todo todo = new Todo(arrayList.get(position).getContent(),holder.checkBox.isChecked());
+                arrayList.set(position,todo);
             }
         });
 

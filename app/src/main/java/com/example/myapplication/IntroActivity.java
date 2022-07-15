@@ -15,6 +15,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
 import com.kakao.sdk.auth.AuthApiClient;
 import com.kakao.sdk.common.model.KakaoSdkError;
@@ -33,14 +39,17 @@ public class IntroActivity extends AppCompatActivity {
     private ImageView btn_login;
     private Account account;
     private static final String TAG="사용자";
-
+    private static final String HOST = "192.249.19.168";
+    private static final String PORT = "80";
+    private static String user_id ;
+    private static String name;
+    private static String profileImage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
         btn_login=findViewById(R.id.btn_login);
 
-        Log.d("사용자", getKeyHash());
 
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,31 +67,33 @@ public class IntroActivity extends AppCompatActivity {
                                     System.out.println("로그인 완료");
                                     account = user.getKakaoAccount();
                                     Log.d("asdf", account.toString());
-//                                    kakao_id = String.valueOf(user.getId());
-//                                    nickname = account.getProfile().getNickname();
-//                                    profileImage=account.getProfile().getThumbnailImageUrl();
-//                                    RequestQueue requestQueue = Volley.newRequestQueue(LoginActivity.this);
-//                                    String uri1 = String.format("http://"+HOST+"/create_user?kakao_id="+kakao_id+"&nickname="+nickname+"&user_img="+profileImage);
-//                                    StringRequest stringRequest = new StringRequest(Request.Method.POST, uri1, new Response.Listener() {
-//                                        @Override
-//                                        public void onResponse(Object response) {
-//                                            try {
-//                                                JSONObject jsonObject = new JSONObject(response.toString());
-//                                                Log.d("response",jsonObject.toString());
-//                                            } catch (JSONException e) {
-//                                                e.printStackTrace();
-//                                            }
-//                                        }
-//                                    }, new Response.ErrorListener() {
-//                                        @Override
-//                                        public void onErrorResponse(VolleyError error) {
-//                                        }
-//                                    });
-//                                    requestQueue.add(stringRequest);
-                                   Intent intent = new Intent(v.getContext(), MainActivity.class);
-//                                    intent.putExtra("profile_image",profileImage);
-//                                    intent.putExtra("nickname", nickname);
-//                                    intent.putExtra("kakao_id", user.getId());
+                                    user_id = String.valueOf(user.getId());
+                                    name = account.getProfile().getNickname();
+                                    profileImage = account.getProfile().getThumbnailImageUrl();
+                                    RequestQueue requestQueue = Volley.newRequestQueue(IntroActivity.this);
+                                    String uri = String.format("http://" + HOST + "/create_user?user_id=" + user_id + "&name=" + name + "&user_img=" + profileImage);
+                                    StringRequest stringRequest = new StringRequest(Request.Method.POST, uri, new Response.Listener() {
+                                        @Override
+                                        public void onResponse(Object response) {
+                                            try {
+                                                JSONObject jsonObject = new JSONObject(response.toString());
+                                                Log.d("response", jsonObject.toString());
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            Log.d("볼리에러", "에러");
+                                        }
+                                    });
+                                    requestQueue.add(stringRequest);
+                                    Intent intent = new Intent(v.getContext(), MainActivity.class);
+                                    intent.putExtra("profile_image", profileImage);
+                                    intent.putExtra("nickname", name);
+                                    intent.putExtra("kakao_id", String.valueOf(user.getId()));
+                                    Log.d("send", "" + profileImage + name + user_id);
                                     startActivity(intent);
                                 }
                                 return null;
@@ -91,6 +102,7 @@ public class IntroActivity extends AppCompatActivity {
                         return null;
                     });
                 }
+
                 else {
                     UserApiClient.getInstance().loginWithKakaoAccount(v.getContext(), (oAuthToken, error) -> {
                         if (error != null) {
@@ -104,33 +116,34 @@ public class IntroActivity extends AppCompatActivity {
                                     System.out.println("로그인 완료");
                                     account = user.getKakaoAccount();
                                     Log.d("asdf", account.toString());
-//                                    kakao_id = String.valueOf(user.getId());
-//                                    nickname = account.getProfile().getNickname();
-//                                    profileImage=account.getProfile().getThumbnailImageUrl();
-//                                    RequestQueue requestQueue = Volley.newRequestQueue(LoginActivity.this);
-//                                    String uri1 = String.format("http://"+HOST+"/create_user?id="+kakao_id+"&nickname="+nickname+"&user_img"+profileImage);
-//                                    StringRequest stringRequest = new StringRequest(Request.Method.GET, uri1, new Response.Listener() {
-//                                        @Override
-//                                        public void onResponse(Object response) {
-//                                            try {
-//                                                JSONObject jsonObject = new JSONObject(response.toString());
-//                                                Log.d("response",jsonObject.toString());
-//                                            } catch (JSONException e) {
-//                                                e.printStackTrace();
-//                                            }
-//                                        }
-//                                    }, new Response.ErrorListener() {
-//                                        @Override
-//                                        public void onErrorResponse(VolleyError error) {
-//                                            Log.d("로딩 reservation에러", "에러: " + error.toString());
-//                                            //추가
-//                                        }
-//                                    });
-//                                    requestQueue.add(stringRequest);
+                                    user_id = String.valueOf(user.getId());
+                                    name = account.getProfile().getNickname();
+                                    profileImage = account.getProfile().getThumbnailImageUrl();
+                                    RequestQueue requestQueue = Volley.newRequestQueue(IntroActivity.this);
+                                    String uri = String.format("http://" + HOST + "/create_user?user_id=" + user_id + "&name=" + name + "&user_img=" + profileImage);
+                                    StringRequest stringRequest = new StringRequest(Request.Method.POST, uri, new Response.Listener() {
+                                        @Override
+                                        public void onResponse(Object response) {
+                                            try {
+                                                JSONObject jsonObject = new JSONObject(response.toString());
+                                                Log.d("response", jsonObject.toString());
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                                Log.d("오류", "여긴가?");
+                                            }
+                                        }
+                                    }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            Log.d("볼리에러", error.toString());
+                                        }
+                                    });
+                                    requestQueue.add(stringRequest);
                                     Intent intent = new Intent(v.getContext(), MainActivity.class);
-//                                    intent.putExtra("profile_image", profileImage);
-//                                    intent.putExtra("nickname", nickname);
-//                                    intent.putExtra("kakao_id", kakao_id);
+                                    intent.putExtra("profile_image", profileImage);
+                                    intent.putExtra("nickname", name);
+                                    intent.putExtra("kakao_id", String.valueOf(user.getId()));
+                                    Log.d("send", "" + profileImage + name + user_id);
                                     startActivity(intent);
                                 }
                                 return null;
@@ -139,13 +152,9 @@ public class IntroActivity extends AppCompatActivity {
                         return null;
                     });
                 }
-            }
-        });
-
-
-
-    }
-
+            }});
+        }
+}
 //    public void startLoginActivity(){
 //        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
 //        startActivity(intent);
@@ -156,25 +165,6 @@ public class IntroActivity extends AppCompatActivity {
 //        startActivity(intent);
 //    }
 
-    // 키해시 얻기
-    public String getKeyHash(){
-        try{
-            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
-            if(packageInfo == null) return null;
-            for(Signature signature: packageInfo.signatures){
-                try{
-                    MessageDigest md = MessageDigest.getInstance("SHA");
-                    md.update(signature.toByteArray());
-                    return android.util.Base64.encodeToString(md.digest(), Base64.NO_WRAP);
-                }catch (NoSuchAlgorithmException e){
-                    Log.w("getKeyHash", "Unable to get MessageDigest. signature="+signature, e);
-                }
-            }
-        }catch(PackageManager.NameNotFoundException e){
-            Log.w("getPackageInfo", "Unable to getPackageInfo");
-        }
-        return null;
-    }
 
 
-}
+

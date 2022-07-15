@@ -4,11 +4,7 @@
     android:layout_width="match_parent"
     android:orientation="vertical"
     android:layout_height="match_parent">
-    <TextView
-        android:id="@+id/selectDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="select date"/>
+
     <com.github.badoualy.datepicker.DatePickerTimeline
         android:id="@+id/calendar"
         android:layout_width="match_parent"
@@ -31,7 +27,15 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:text="추가"
+            android:layout_marginRight="15dp"
             android:background="#FFD8D8"
+            />
+        <Button
+            android:id="@+id/save"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:text="저장"
+            android:background="#FBA5A5"
             />
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
