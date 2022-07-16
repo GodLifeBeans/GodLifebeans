@@ -154,17 +154,6 @@ public class IntroActivity extends AppCompatActivity {
                 }
             }});
         }
-}
-//    public void startLoginActivity(){
-//        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-//        startActivity(intent);
-//    }
-
-//    public void startMapFragmentActivity(){
-//        Intent intent = new Intent(MainActivity.this, MapFragmentActivity.class);
-//        startActivity(intent);
-//    }
-
-
+    }
 
 

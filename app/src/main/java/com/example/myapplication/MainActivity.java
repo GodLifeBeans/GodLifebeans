@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Button goto_todo_btn = (Button)findViewById(R.id.goto_todo_btn);
+        Button goto_meal_btn = (Button)findViewById(R.id.goto_meals_btn);
         goto_todo_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -40,7 +41,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-
+        goto_meal_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), MealsActivity.class);
+                intent.putExtra("name",name);
+                intent.putExtra("id",id);
+                intent.putExtra("profileImage",profileImage);
+                startActivity(intent);
+            }
+        });
     }
 }

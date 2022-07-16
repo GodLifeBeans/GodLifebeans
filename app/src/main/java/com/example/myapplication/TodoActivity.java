@@ -153,7 +153,7 @@ public class TodoActivity  extends AppCompatActivity {
                                 arrayList.add(addingtodo);
                                 Log.d("arrayList",content);
                             }
-                           Log.d("arrayList_size", String.valueOf(arrayList.size()));
+                            Log.d("arrayList_size", String.valueOf(arrayList.size()));
                             todoAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
