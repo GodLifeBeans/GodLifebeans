@@ -53,7 +53,6 @@ public class TodoActivity  extends AppCompatActivity {
         DatePickerTimeline timeline = (DatePickerTimeline)findViewById(R.id.calendar);
         Intent intent =getIntent();
 
-
         String user_id = intent.getStringExtra("id");
         String name = intent.getStringExtra("name");
         //사실 이건 필요없음

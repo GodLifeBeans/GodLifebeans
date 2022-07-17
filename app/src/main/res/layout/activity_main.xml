@@ -19,8 +19,10 @@
             android:layout_height="wrap_content" />
 
         <Button
+            android:id="@+id/congventory"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" /> >
+            android:layout_height="wrap_content"
+            android:text="콩벤토리"/> >
 
         <TextView
             android:layout_width="0dp"
@@ -32,8 +34,18 @@
             android:src="@drawable/ic_launcher_background" />
     </LinearLayout>
     <LinearLayout
+        android:id="@+id/main_view"
         android:layout_width="match_parent"
-        android:layout_height="550dp"></LinearLayout>
+        android:layout_height="550dp">
+
+        <ImageView
+            android:id="@+id/bean_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher"
+            />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

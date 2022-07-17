@@ -22,11 +22,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
+import com.google.gson.JsonArray;
 import com.kakao.sdk.auth.AuthApiClient;
 import com.kakao.sdk.common.model.KakaoSdkError;
 import com.kakao.sdk.user.UserApiClient;
 import com.kakao.sdk.user.model.Account;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -126,7 +128,11 @@ public class IntroActivity extends AppCompatActivity {
                                         public void onResponse(Object response) {
                                             try {
                                                 JSONObject jsonObject = new JSONObject(response.toString());
-                                                Log.d("response", jsonObject.toString());
+                                                JSONArray jsonArray = jsonObject.getJSONArray("result");
+                                                String url = jsonArray.getJSONObject(0).getString("wakeup_img");
+                                                String wakeup_time =  jsonArray.getJSONObject(0).getString("wakeup_time");
+                                                Log.d("url", url);
+                                                Log.d("wakeup_time", wakeup_time);
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                                 Log.d("오류", "여긴가?");
