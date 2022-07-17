@@ -18,29 +18,37 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.example.myapplication.databinding.ActivityMealaddBinding;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.sql.*;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.http.Multipart;
 
 public class MealAddActivity extends AppCompatActivity {
     ActivityMealaddBinding binding;
     private int GET_GALLERY_IMAGE = 0;
     private String mediaPath = null;
-    private String bytestream;
+    private Uri photoUri;
     private static final String HOST = "192.249.19.168";
     private static final String PORT = "80";
 
+    ImageAddApi imageAddApi = RetrofitClientInstance.getRetrofitInstance().create(ImageAddApi.class);
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -55,9 +63,10 @@ public class MealAddActivity extends AppCompatActivity {
         binding.image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        "image/*");
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
                 startActivityForResult(intent, GET_GALLERY_IMAGE);
             }
         });
@@ -71,41 +80,42 @@ public class MealAddActivity extends AppCompatActivity {
                 if(mediaPath != null){
                     File file = new File(mediaPath);
                     Meals meal = new Meals(binding.name.getText().toString(), id, tts.substring(0, 8), tts.substring(8, 12), binding.comment.getText().toString());
-
-                    //addrequest
-                    RequestQueue addrequest = Volley.newRequestQueue(MealAddActivity.this);
-                    String uri = String.format("http://"+HOST+"/add_meals?user_id="+id+"&name="+binding.name.getText().toString()+"&comment="+
-                            binding.comment.getText().toString()+"&date"+tts.substring(0, 8)+"&time"+tts.substring(8, 12));
-                    StringRequest stringRequest = new StringRequest(Request.Method.GET, uri, new Response.Listener() {
+                    final int[] mid = new int[1];
+                    //add meal object request
+                    imageAddApi.addMeal(meal).enqueue(new Callback<MealsAddResponse>() {
                         @Override
-                        public void onResponse(Object response){
-                            try {
-                                JSONObject jsonObject = new JSONObject(response.toString());
-                                JSONArray result = jsonObject.getJSONArray("result");
-                                Log.d("result",result.toString());
-                                for (int i = 0 ; i<result.length() ; i++){
-                                    JSONObject usage = result.getJSONObject(i);
-                                    Log.d("usage", usage.toString());
-                                    int finish = usage.getInt("complete");
-                                    String content = usage.getString("content");
-                                    Log.d("finish",String.valueOf(finish));
-                                }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                        public void onResponse(Call<MealsAddResponse> call, Response<MealsAddResponse> response) {
+                            MealsAddResponse res = response.body();
+                            mid[0] = res.getResultid();
                         }
-                    }, new Response.ErrorListener() {
+
                         @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.d("add meal volley", "error");
+                        public void onFailure(Call<MealsAddResponse> call, Throwable t) {
+                            Log.d("retrofit failure", "meal add failure");
                         }
                     });
-                    addrequest.add(stringRequest);
+
                     //imageadd request
+                    RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
+                    MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("img", file.getName(), requestBody);
 
-                    //imageurl add request
-
+                    imageAddApi.uploadImage(fileToUpload, new Meals_UriAdd(mid[0])).enqueue(new Callback<MealsResponse>() {
+                        @Override
+                        public void onResponse(Call<MealsResponse> call, Response<MealsResponse> response) {
+                            MealsResponse res = response.body();
+                            if(res.isSuccess()){
+                                Toast.makeText(getApplicationContext(), "소중한 후기 감사합니다.", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<MealsResponse> call, Throwable t) {
+                            Toast.makeText(getApplicationContext(), "등록에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "please add image", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -116,27 +126,15 @@ public class MealAddActivity extends AppCompatActivity {
         if(requestCode == GET_GALLERY_IMAGE){
             if(resultCode == RESULT_OK){
                 Bitmap bitmap = null;
+                photoUri = data.getData();
+                //이미지 띄우기
+                Glide.with(this.getApplicationContext()).load(photoUri).into(binding.image);
 
-                String[] proj = {MediaStore.Images.Media.DATA};
-                Uri photoUri = data.getData();
-                Cursor cursor = getContentResolver().query(photoUri, proj, null, null, null);
+                Cursor cursor = getApplicationContext().getContentResolver().query(Uri.parse(photoUri.toString()), null, null, null, null);
+                assert cursor != null;
                 cursor.moveToFirst();
-                mediaPath = cursor.getString(cursor.getColumnIndex(proj[0]));
-                cursor.close();
+                mediaPath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
 
-                try{
-                    InputStream in = getContentResolver().openInputStream(photoUri);
-                    bitmap = BitmapFactory.decodeStream(in);
-                    in.close();
-                    binding.image.setImageBitmap(bitmap);
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-                    byte[] image = bos.toByteArray();
-                    bytestream = Base64.encodeToString(image, 0);
-                    Log.d("bytestream", bytestream);
-                }catch(Exception e) {
-                    e.printStackTrace();
-                }
             }
             else if(resultCode == RESULT_CANCELED){
                 Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
