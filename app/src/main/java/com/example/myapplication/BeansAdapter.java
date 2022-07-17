@@ -1,10 +1,13 @@
 package com.example.myapplication;
 
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,9 +17,10 @@ import java.util.ArrayList;
 public class BeansAdapter extends RecyclerView.Adapter<BeansAdapter.CustomViewHolder> {
 
     private ArrayList<Beans> arrayList;
+    //생성자 선언
+    public BeansAdapter(ArrayList<Beans> arrayList ) {
+        this.arrayList = arrayList;
 
-    public BeansAdapter(ArrayList<Beans> arrayList){
-        this.arrayList=arrayList;
     }
 
     @NonNull
@@ -28,29 +32,43 @@ public class BeansAdapter extends RecyclerView.Adapter<BeansAdapter.CustomViewHo
         return holder;
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull BeansAdapter.CustomViewHolder holder, int position) {
-//        holder.beans_image.setImageResource(R.drawable.ic_launcher_foreground);
-        holder.beans_price.setText(arrayList.get(position).getBeans_price());
-        holder.beans_name.setText(arrayList.get(position).getBeans_name());
+        Log.d("holder", "------ holder = " + (holder.photoid));
+
+        holder.photoid = (ImageView)holder.itemView.findViewById(R.id.photoid);
+        holder.phonenum = (TextView)holder.itemView.findViewById(R.id.phonenum);
+        holder.name = (TextView)holder.itemView.findViewById(R.id.name);
+
+
+        holder.photoid.setImageResource(R.drawable.ic_launcher_foreground);
+        holder.phonenum.setText(arrayList.get(position).getBeans_price());
+        holder.name.setText(arrayList.get(position).getBeans_name());
+
+        holder.itemView.setTag(position);
+
+
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return (null != arrayList ? arrayList.size() : 0);
     }
 
 
-    public class CustomViewHolder extends RecyclerView.ViewHolder{
-        protected TextView beans_name;
-        protected TextView beans_price;
-//        protected ImageView beans_image;
+    public class CustomViewHolder extends RecyclerView.ViewHolder {
+        protected ImageView photoid;
+        protected TextView phonenum;
+        protected TextView name;
 
         public CustomViewHolder(@NonNull View itemView) {
             super(itemView);
-//            this.beans_image = (ImageView)itemView.findViewById(R.id.beans_image);
-            this.beans_name = (TextView)itemView.findViewById(R.id.beans_name);
-            this.beans_price = (TextView)itemView.findViewById(R.id.beans_price);
+            // Log.d("찾아야돼",itemView.findViewById(R.id.photoid).toString());
+            this.photoid = (ImageView)itemView.findViewById(R.id.photoid);
+            this.phonenum = (TextView)itemView.findViewById(R.id.phonenum);
+            Log.d("찾아야돼",""+((ImageView)itemView.findViewById(R.id.photoid)==null));
+            this.name = (TextView)itemView.findViewById(R.id.name);
         }
     }
 }

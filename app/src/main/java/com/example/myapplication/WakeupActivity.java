@@ -106,7 +106,6 @@ public class WakeupActivity extends AppCompatActivity {
                         "image/*");
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
                 startActivityForResult(intent, REQUEST_CODE);
-
             }
         });
 

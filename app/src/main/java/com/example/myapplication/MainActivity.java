@@ -135,16 +135,18 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                //리사이클러뷰
+                Log.d("리사이클러뷰","시작");
+             //   리사이클러뷰
                 recyclerView = (RecyclerView)shopDialog.findViewById(R.id.bean_rv);
-//                GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2, GridLayoutManager.VERTICAL, false);
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(shopDialog.getContext());
+                Log.d("리사이클러뷰",recyclerView.toString());
+                GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2, GridLayoutManager.VERTICAL, false);
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
                 recyclerView.setLayoutManager(linearLayoutManager);
                 beansAdapter = new BeansAdapter(arrayList);
                 recyclerView.setAdapter(beansAdapter);
                 Log.d("arraylist",String.valueOf(arrayList.size()));
                 beansAdapter.notifyDataSetChanged();
-                //각각의 콩들 클릭 이벤트
+               // 각각의 콩들 클릭 이벤트
 //                CardView firstbean = shopDialog.findViewById(R.id.first_bean);
 //                firstbean.setOnClickListener(new View.OnClickListener() {
 //                    @Override
