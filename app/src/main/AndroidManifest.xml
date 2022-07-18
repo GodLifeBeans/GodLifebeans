@@ -33,6 +33,10 @@
         </activity>
         <activity android:name=".MealAddActivity"
             android:exported="true"/>
+        <activity android:name=".FriendsActivity"
+            android:exported="true"/>
+        <activity android:name=".FriendsMap"
+            android:exported="true"/>
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
             android:exported="true">
