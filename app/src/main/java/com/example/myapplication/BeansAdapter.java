@@ -1,7 +1,9 @@
 package com.example.myapplication;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,13 +19,27 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class BeansAdapter extends RecyclerView.Adapter<BeansAdapter.CustomViewHolder> {
     private Context applicationContext;
     ViewGroup viewGroup  ;
     private ArrayList<Beans> arrayList;
+    private static final String HOST = "192.249.19.168";
+    private static final String PORT = "80";
     private String id ;
+    Context parentContext;
     //생성자 선언
     public BeansAdapter(ArrayList<Beans> arrayList ) {
         this.arrayList = arrayList;
@@ -42,6 +58,7 @@ public class BeansAdapter extends RecyclerView.Adapter<BeansAdapter.CustomViewHo
     public BeansAdapter.CustomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.beans_item,parent,false);
         CustomViewHolder holder = new CustomViewHolder(view);
+        parentContext =parent.getContext();
         return holder;
     }
 
@@ -63,6 +80,7 @@ public class BeansAdapter extends RecyclerView.Adapter<BeansAdapter.CustomViewHo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        Activity activity = unwrap(parentContext);
                         Dialog selectedDialog = new Dialog(view.getContext());
                         selectedDialog.setContentView(R.layout.selected_bean_dialog);
                         WindowManager.LayoutParams wm2 = selectedDialog.getWindow().getAttributes();
@@ -92,20 +110,32 @@ public class BeansAdapter extends RecyclerView.Adapter<BeansAdapter.CustomViewHo
                                 Toast.makeText(view.getContext(), "구매완료", Toast.LENGTH_SHORT).show();
                                 selectedDialog.dismiss();
                                 Log.d("id",id);
+                                RequestQueue requestQueue = Volley.newRequestQueue(applicationContext);
+                                String uri = String.format("http://" + HOST + "/add_beans?user_id=" + id + "&beans_name=" + arrayList.get(position).getBeans_name() + "&beans_price=" + arrayList.get(position).getBeans_price() +"&beans_img="+arrayList.get(position).getBenas_img());
+                                StringRequest stringRequest = new StringRequest(Request.Method.POST, uri, new Response.Listener() {
+                                    @Override
+                                    public void onResponse(Object response) {
+                                        try {
+                                            JSONObject jsonObject = new JSONObject(response.toString());
+                                            JSONArray jsonArray = jsonObject.getJSONArray("result");
+                                            String url = jsonArray.getJSONObject(0).getString("wakeup_img");
+                                            String wakeup_time =  jsonArray.getJSONObject(0).getString("wakeup_time");
+                                            Log.d("url", url);
+                                            Log.d("wakeup_time", wakeup_time);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                            Log.d("오류", "여긴가?");
+                                        }
+                                    }
+                                }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        Log.d("볼리에러", error.toString());
+                                    }
+                                });
+                                requestQueue.add(stringRequest);
 
-//                                데베에 올려버리기
-//
-//
-                                 //layout param 생성
-                                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT /* layout_width */, LinearLayout.LayoutParams.WRAP_CONTENT /* layout_height */, 1f /* layout_weight */);
-                                ImageView iv = new ImageView(view.getContext());  // 새로 추가할 imageView 생성
-                                iv.setImageResource(R.drawable.ic_launcher_foreground);  // imageView에 내용 추가
-                               // LinearLayout linearLayout = v.
-                               // linearLayout.addView(iv); // 기존 linearLayout에 imageView 추가
-                                //1. 돈 충분한지
-                                //2. 돈 있으면 테이블에 넣기
-                                //3. 테이블에 콩 넣기
-                                //4. 리사이클러뷰에 내 콩들 넣기
+
                             }
                         });
 
@@ -118,7 +148,14 @@ public class BeansAdapter extends RecyclerView.Adapter<BeansAdapter.CustomViewHo
 
                     }
                 });
+    }
 
+    private static Activity unwrap(Context context) {
+        while (!(context instanceof Activity) && context instanceof ContextWrapper) {
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+
+        return (Activity) context;
     }
 
     @Override

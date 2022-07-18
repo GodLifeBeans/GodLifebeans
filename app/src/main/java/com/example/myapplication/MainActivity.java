@@ -17,12 +17,26 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.JsonArray;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  implements OnItemClick {
     Button goto_todo_btn;
     Button goto_wakeup_btn;
     Button goto_beanshop_btn;
@@ -37,24 +51,28 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Beans> arrayList;
     private BeansAdapter beansAdapter;
     private RecyclerView recyclerView;
-
+    private static final String HOST = "192.249.19.168";
+    private static final String PORT = "80";
     //
     private ArrayList<Kongventory> kvArrayList;
     private KongventoryAdapter kongventoryAdapter;
     private RecyclerView kongventoryRv;
-
+    float x = 100;
+    float y =100;
+    int count =1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        LinearLayout linearLayout = (LinearLayout)findViewById(R.id.main_view);
+        FrameLayout frameLayout = (FrameLayout)findViewById(R.id.main_view);
         View main_view = (View)findViewById(R.id.main_view);
         Intent intent = getIntent();
         String profileImage = intent.getStringExtra("profile_image");
         String name=intent.getStringExtra("nickname");
         String id = intent.getStringExtra("kakao_id");
-        ImageView bean_img = (ImageView)findViewById(R.id.bean_img);
+
+
 
         Log.d("profile, name, id", ""+profileImage+name+id);
 
@@ -64,6 +82,33 @@ public class MainActivity extends AppCompatActivity {
         Button goto_beanshop_btn = (Button)findViewById(R.id.goto_beanshop_btn);
         Button congventory = (Button)findViewById(R.id.congventory);
         Button goto_meal_btn = (Button)findViewById(R.id.goto_meals_btn);
+        ImageView goto_friends = (ImageView)findViewById(R.id.goto_friends);
+
+        goto_friends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, FriendsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                view.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View view, MotionEvent motionEvent) {
+                        Log.d("x좌표", String.valueOf(motionEvent.getX()));
+                        Log.d("y좌표",String.valueOf(motionEvent.getY()));
+//                bean_img.setX(motionEvent.getX());
+//                bean_img.setY(motionEvent.getY());
+                        return false;
+                    }
+            });
+            }
+        };
+
+
 
         DisplayMetrics dm =getApplicationContext().getResources().getDisplayMetrics();
         int width = dm.widthPixels;
@@ -88,9 +133,89 @@ public class MainActivity extends AppCompatActivity {
 
         //콩벤토리 리사이클러뷰
         kvArrayList = new ArrayList<>();
-        kvArrayList.add(new Kongventory("first","150",R.drawable.background));
+//     콩벤토리  받아오기
+        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+        String uri = String.format("http://" + HOST + "/get_kongventory?user_id=" + id);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, uri, new Response.Listener() {
+            @Override
+            public void onResponse(Object response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response.toString());
+                    Log.d("response", jsonObject.toString());
+                    JSONArray jsonArray = jsonObject.getJSONArray("result");
+                    Log.d("result", jsonArray.toString());
+                    for (int i = 0 ; i<jsonArray.length();i++){
+                      //  Log.d("array", jsonArray.get(i).toString());
+                        JSONObject usage = jsonArray.getJSONObject(i);
+                        Log.d("useage",usage.toString());
+                        String name = usage.getString("beans_name");
+                        String price = usage.getString("beans_price");
+                        String img = usage.getString("beans_img");
+                        int img_toInt = Integer.parseInt(img);
+                        Kongventory addkong = new Kongventory(name, price, img_toInt);
+                        kvArrayList.add(addkong);
+                    }
+                   // String wakeup_time =  jsonArray.getJSONObject(0).getString("wakeup_time");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d("오류", "여긴가?");
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("볼리에러", error.toString());
+            }
+        });
+        requestQueue.add(stringRequest);
 
 
+
+        //맵 받아오기
+        RequestQueue requestQueue1 = Volley.newRequestQueue(MainActivity.this);
+        String uri1 = String.format("http://" + HOST + "/get_map_kongs?user_id=" + id);
+        StringRequest stringRequest1 = new StringRequest(Request.Method.GET, uri1, new Response.Listener() {
+            @Override
+            public void onResponse(Object response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response.toString());
+                    Log.d("response", jsonObject.toString());
+                    JSONArray jsonArray = jsonObject.getJSONArray("result");
+                    Log.d("result", jsonArray.toString());
+                    Log.d("result size", String.valueOf(jsonArray.length()));
+                    for (int i = 0 ; i<jsonArray.length();i++){
+                        //beanid 부여
+                        count=  jsonArray.getJSONObject(i).getInt("beans_id");
+                        Log.d("count",String.valueOf(count));
+                        String name =  jsonArray.getJSONObject(i).getString("beans_img");
+                        ImageView iv = new ImageView(getApplicationContext());  // 새로 추가할 imageView 생성
+                        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(500,500 );
+                        iv.setLayoutParams(layoutParams);
+                        iv.setImageResource(Integer.parseInt(name));
+                        iv.setX(x);
+                        iv.setY(y);
+                        iv.setId(count);
+                        frameLayout.addView(iv);
+                        x=x+100;
+                        y=y+100;
+                        iv.setOnClickListener(listener);
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d("오류", "여긴가?");
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("볼리에러", error.toString());
+            }
+        });
+        requestQueue1.add(stringRequest1);
+
+//        ImageView img = (ImageView)frameLayout.findViewById(23);
 
         //콩벤토리
         congventory.setOnClickListener(new View.OnClickListener() {
@@ -100,18 +225,27 @@ public class MainActivity extends AppCompatActivity {
                 beanventory.setContentView(R.layout.beanventory_dialog);
                 WindowManager.LayoutParams wm = beanventory.getWindow().getAttributes();
                 wm.copyFrom(beanventory.getWindow().getAttributes());
+                ImageView goto_main = (ImageView) beanventory.findViewById(R.id.goto_main);
                 wm.width=width;
                 wm.height=height-300;
                 kongventoryRv = beanventory.findViewById(R.id.kongventory_bean_rv);
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
-                kongventoryRv.setLayoutManager(linearLayoutManager);
-                kongventoryAdapter = new KongventoryAdapter(kvArrayList);
+                GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2, GridLayoutManager.VERTICAL, false);
+                kongventoryRv.setLayoutManager(gridLayoutManager);
+                kongventoryAdapter = new KongventoryAdapter(id,getApplicationContext(),kvArrayList);
                 kongventoryRv.setAdapter(kongventoryAdapter);
                 Log.d("arraylist",String.valueOf(arrayList.size()));
                 kongventoryAdapter.notifyDataSetChanged();
                 beanventory.getWindow().setGravity(Gravity.BOTTOM);
                 beanventory.getWindow().setDimAmount(0);
                 beanventory.show();
+                goto_main.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        beanventory.dismiss();
+                        finish();
+                        startActivity(intent);
+                    }
+                });
             }
         });
 
@@ -156,7 +290,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         shopDialog.dismiss();
+                        finish();
+                        startActivity(getIntent());
                     }
+
                 });
 
                 Log.d("리사이클러뷰","시작");
@@ -164,61 +301,11 @@ public class MainActivity extends AppCompatActivity {
                 recyclerView = (RecyclerView)shopDialog.findViewById(R.id.bean_rv);
                 Log.d("리사이클러뷰",recyclerView.toString());
                 GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2, GridLayoutManager.VERTICAL, false);
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
                 recyclerView.setLayoutManager(gridLayoutManager);
                 beansAdapter = new BeansAdapter(id,getApplicationContext(),arrayList);
 
                // beansAdapter = new BeansAdapter(arrayList);
                 recyclerView.setAdapter(beansAdapter);
-                Log.d("arraylist",String.valueOf(arrayList.size()));
-                beansAdapter.notifyDataSetChanged();
-               // 각각의 콩들 클릭 이벤트
-//                CardView firstbean = shopDialog.findViewById(R.id.first_bean);
-//                firstbean.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        selectedBeanId = "First";
-//                        Log.d("firstbean", "firstbean");
-//                        Dialog selectedDialog = new Dialog(shopDialog.getContext());
-//                        selectedDialog.setContentView(R.layout.selected_bean_dialog);
-//                        WindowManager.LayoutParams wm2 = selectedDialog.getWindow().getAttributes();
-//                        wm2.copyFrom(selectedDialog.getWindow().getAttributes());
-//                        wm2.width=wm.width;
-//                        wm2.height= wm.height-100;
-//                        selectedDialog.getWindow().setGravity(Gravity.BOTTOM);
-//                        selectedDialog.getWindow().setDimAmount(0);
-//                        selectedDialog.show();
-//
-//                        Button buy= selectedDialog.findViewById(R.id.buy);
-//                        Button goto_back = selectedDialog.findViewById(R.id.goto_back);
-//
-//                        buy.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Toast.makeText(getApplication(), "구매완료", Toast.LENGTH_SHORT).show();
-//                                selectedDialog.dismiss();
-//                                shopDialog.dismiss();
-//                                // layout param 생성
-//                                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT /* layout_width */, LinearLayout.LayoutParams.WRAP_CONTENT /* layout_height */, 1f /* layout_weight */);
-//                                ImageView iv = new ImageView(getApplicationContext());  // 새로 추가할 imageView 생성
-//                                iv.setImageResource(R.drawable.ic_launcher_foreground);  // imageView에 내용 추가
-//                                linearLayout.addView(iv); // 기존 linearLayout에 imageView 추가
-//                                //1. 돈 충분한지
-//                                //2. 돈 있으면 테이블에 넣기
-//                                //3. 테이블에 콩 넣기
-//                                //4. 리사이클러뷰에 내 콩들 넣기
-//                            }
-//                        });
-//
-//                        goto_back.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                selectedDialog.dismiss();
-//                            }
-//                        });
-//
-//                    }
-//                });
             }
         });
 
@@ -238,16 +325,15 @@ public class MainActivity extends AppCompatActivity {
         main_view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-               Log.d("x좌표", String.valueOf(motionEvent.getX()));
+                Log.d("x좌표", String.valueOf(motionEvent.getX()));
                 Log.d("y좌표",String.valueOf(motionEvent.getY()));
-                bean_img.setX(motionEvent.getX());
-                bean_img.setY(motionEvent.getY());
+//                bean_img.setX(motionEvent.getX());
+//                bean_img.setY(motionEvent.getY());
                 return false;
             }
         });
-
-
     }
+
 
     public boolean onTouchEvent(MotionEvent event){
         switch(event.getAction()){
@@ -281,4 +367,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onClick(String value) {
+
+    }
 }
