@@ -12,6 +12,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.myapplication.databinding.ActivityMealsBinding;
 import com.github.badoualy.datepicker.DatePickerTimeline;
 import com.github.badoualy.datepicker.MonthView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -38,20 +43,18 @@ public class MealsActivity extends AppCompatActivity {
         id = intent.getStringExtra("id");
 
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-//        String tts = timeToString(timestamp);
+        String tts = timeToString(timestamp);
 
-        Log.d("is it here", "1");
-//        binding.datepickertimeline.setFirstVisibleDate(Integer.parseInt(tts.substring(0,4)),
-//                Integer.parseInt(tts.substring(4,6)), Integer.parseInt(tts.substring(6, 8)));
-        binding.datepickertimeline.setFirstVisibleDate(2022, 6, 18);
-        Log.d("is it here", "2");
+        date = tts.substring(0, 8);
+        Log.d("date?", date);
+        getMealList(id, date);
+
         binding.datepickertimeline.setDateLabelAdapter(new MonthView.DateLabelAdapter() {
             @Override
             public CharSequence getLabel(Calendar calendar, int index) {
                 return Integer.toString(calendar.get(Calendar.MONTH) + 1) + "/" + (calendar.get(Calendar.YEAR) % 2000);
             }
         });
-        Log.d("is it here", "3");
         binding.datepickertimeline.setOnDateSelectedListener(new DatePickerTimeline.OnDateSelectedListener() {
             @Override
             public void onDateSelected(int year, int month, int day, int index) {
@@ -60,7 +63,6 @@ public class MealsActivity extends AppCompatActivity {
                 getMealList(id, date);
             }
         });
-        Log.d("is it here", "4");
         binding.recyclerview.setHasFixedSize(true);
         binding.recyclerview.addItemDecoration(new DividerItemDecoration(this, 1));
 
@@ -71,7 +73,7 @@ public class MealsActivity extends AppCompatActivity {
         binding.plusbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MealsActivity.class);
+                Intent intent = new Intent(getApplicationContext(), MealAddActivity.class);
                 intent.putExtra("name", name);
                 intent.putExtra("id", id);
                 startActivity(intent);
@@ -79,12 +81,11 @@ public class MealsActivity extends AppCompatActivity {
         });
     }
 
-//    @Override
-//    public void onResume(){
-//        super.onResume();
-//        getMealList(id, date);
-//    }
-
+    @Override
+    public void onResume(){
+        super.onResume();
+        getMealList(id, date);
+    }
     public String dateString(int year, int month, int date){
         if(1<=month&&month<=9){
             return ""+year+"0"+month+date;
@@ -94,9 +95,10 @@ public class MealsActivity extends AppCompatActivity {
 
     private void getMealList(String id, String date){
         ImageAddApi imageAddApi = RetrofitClientInstance.getRetrofitInstance().create(ImageAddApi.class);
-        imageAddApi.getTodayMeals(new Meals_GetToday(id, date)).enqueue(new Callback<ArrayList<Meals>>() {
+        imageAddApi.getTodayMeals(id, date).enqueue(new Callback<ArrayList<Meals>>() {
             @Override
             public void onResponse(Call<ArrayList<Meals>> call, Response<ArrayList<Meals>> response) {
+                Log.d("response", response.toString());
                 mealsArrayList.clear();
                 mealsArrayList.addAll(response.body());
                 adapterMeals.notifyDataSetChanged();
