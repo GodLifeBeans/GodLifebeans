@@ -1,7 +1,6 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,25 +8,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.animation.ObjectAnimator;
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
     Button goto_todo_btn;
@@ -44,6 +37,11 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Beans> arrayList;
     private BeansAdapter beansAdapter;
     private RecyclerView recyclerView;
+
+    //
+    private ArrayList<Kongventory> kvArrayList;
+    private KongventoryAdapter kongventoryAdapter;
+    private RecyclerView kongventoryRv;
 
 
     @Override
@@ -65,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         Button goto_todo_btn = (Button)findViewById(R.id.goto_todo_btn);
         Button goto_beanshop_btn = (Button)findViewById(R.id.goto_beanshop_btn);
         Button congventory = (Button)findViewById(R.id.congventory);
+        Button goto_meal_btn = (Button)findViewById(R.id.goto_meals_btn);
 
         DisplayMetrics dm =getApplicationContext().getResources().getDisplayMetrics();
         int width = dm.widthPixels;
@@ -72,10 +71,27 @@ public class MainActivity extends AppCompatActivity {
         Log.d("height", String.valueOf((height)));
 
 
-        //리사이클러뷰
+        //콩상점 리사이클러뷰
         arrayList = new ArrayList<>();
         Drawable drawable = getResources().getDrawable(R.drawable.ic_launcher_foreground);
-        arrayList.add(new Beans("first","200"));
+//        arrayList.add(new Beans("first","200",R.drawable.ic_launcher_background));
+        arrayList.add(new Beans("아몬드","0",R.drawable.amond));
+        arrayList.add(new Beans("병아리콩","0",R.drawable.byungarikong));
+        arrayList.add(new Beans("땅콩","0",R.drawable.ddangkong));
+        arrayList.add(new Beans("눕땅콩","0",R.drawable.ddangkong2));
+        arrayList.add(new Beans("호두","0", R.drawable.hodu));
+        arrayList.add(new Beans("무지개","0",R.drawable.muzigae));
+        arrayList.add(new Beans("핑클","0",R.drawable.pinkkong));
+        arrayList.add(new Beans("완두","0",R.drawable.wandos));
+
+
+
+        //콩벤토리 리사이클러뷰
+        kvArrayList = new ArrayList<>();
+        kvArrayList.add(new Kongventory("first","150",R.drawable.background));
+
+
+
         //콩벤토리
         congventory.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,6 +102,13 @@ public class MainActivity extends AppCompatActivity {
                 wm.copyFrom(beanventory.getWindow().getAttributes());
                 wm.width=width;
                 wm.height=height-300;
+                kongventoryRv = beanventory.findViewById(R.id.kongventory_bean_rv);
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+                kongventoryRv.setLayoutManager(linearLayoutManager);
+                kongventoryAdapter = new KongventoryAdapter(kvArrayList);
+                kongventoryRv.setAdapter(kongventoryAdapter);
+                Log.d("arraylist",String.valueOf(arrayList.size()));
+                kongventoryAdapter.notifyDataSetChanged();
                 beanventory.getWindow().setGravity(Gravity.BOTTOM);
                 beanventory.getWindow().setDimAmount(0);
                 beanventory.show();
@@ -116,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
         goto_beanshop_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                goto_beanshop_btn.setTag(id);
                 Dialog shopDialog = new Dialog(MainActivity.this);
                 shopDialog.setContentView(R.layout.bean_shop_dialog);
                 //dialog 크기 바꾸기
@@ -141,8 +165,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("리사이클러뷰",recyclerView.toString());
                 GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2, GridLayoutManager.VERTICAL, false);
                 LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
-                recyclerView.setLayoutManager(linearLayoutManager);
-                beansAdapter = new BeansAdapter(arrayList);
+                recyclerView.setLayoutManager(gridLayoutManager);
+                beansAdapter = new BeansAdapter(id,getApplicationContext(),arrayList);
+
+               // beansAdapter = new BeansAdapter(arrayList);
                 recyclerView.setAdapter(beansAdapter);
                 Log.d("arraylist",String.valueOf(arrayList.size()));
                 beansAdapter.notifyDataSetChanged();
@@ -193,6 +219,18 @@ public class MainActivity extends AppCompatActivity {
 //
 //                    }
 //                });
+            }
+        });
+
+
+        goto_meal_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MealsActivity.class);
+                intent.putExtra("name",name);
+                intent.putExtra("id",id);
+                intent.putExtra("profileImage",profileImage);
+                startActivity(intent);
             }
         });
 

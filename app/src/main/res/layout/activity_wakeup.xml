@@ -34,7 +34,7 @@
         android:layout_gravity="top"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:src="@drawable/ic_launcher_background"
+        android:src="@drawable/imageadd"
         />
     </LinearLayout>
     <LinearLayout

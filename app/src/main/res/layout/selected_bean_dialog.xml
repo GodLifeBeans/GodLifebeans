@@ -11,11 +11,13 @@
         android:gravity="center"
         >
     <ImageView
+        android:id="@+id/selected_beans_img"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:src="@drawable/ic_launcher_background"/>
+        android:src="@drawable/imageadd"/>
 
         <TextView
+            android:id="@+id/selected_bean_name"
             android:layout_marginTop="10dp"
             android:gravity="center"
             android:layout_width="match_parent"
@@ -26,6 +28,7 @@
 
 
         <TextView
+            android:id="@+id/selected_bean_price"
             android:layout_marginHorizontal="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
