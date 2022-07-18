@@ -34,6 +34,7 @@
             android:src="@drawable/imageadd" />
     </LinearLayout>
     <LinearLayout
+        android:orientation="vertical"
         android:id="@+id/main_view"
         android:layout_width="match_parent"
         android:layout_height="550dp">

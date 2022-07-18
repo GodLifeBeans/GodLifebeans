@@ -20,6 +20,17 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Beans> arrayList;
     private BeansAdapter beansAdapter;
     private RecyclerView recyclerView;
-
+    private static final String HOST = "192.249.19.168";
+    private static final String PORT = "80";
     //
     private ArrayList<Kongventory> kvArrayList;
     private KongventoryAdapter kongventoryAdapter;
@@ -88,8 +100,44 @@ public class MainActivity extends AppCompatActivity {
 
         //콩벤토리 리사이클러뷰
         kvArrayList = new ArrayList<>();
-        kvArrayList.add(new Kongventory("first","150",R.drawable.background));
+//       받아오기
+        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+        String uri = String.format("http://" + HOST + "/get_kongventory?user_id=" + id);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, uri, new Response.Listener() {
+            @Override
+            public void onResponse(Object response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response.toString());
+                    Log.d("response", jsonObject.toString());
+                    JSONArray jsonArray = jsonObject.getJSONArray("result");
+                    Log.d("result", jsonArray.toString());
+                    for (int i = 0 ; i<jsonArray.length();i++){
+                      //  Log.d("array", jsonArray.get(i).toString());
+                        JSONObject usage = jsonArray.getJSONObject(i);
+                        Log.d("useage",usage.toString());
+                        String name = usage.getString("beans_name");
+                        String price = usage.getString("beans_price");
+                        String img = usage.getString("beans_img");
+                        int img_toInt = Integer.parseInt(img);
+                        Kongventory addkong = new Kongventory(name, price, img_toInt);
+                        kvArrayList.add(addkong);
+                       // kongventoryAdapter.notifyDataSetChanged();
 
+                    }
+                   // String wakeup_time =  jsonArray.getJSONObject(0).getString("wakeup_time");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d("오류", "여긴가?");
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("볼리에러", error.toString());
+            }
+        });
+        requestQueue.add(stringRequest);
 
 
         //콩벤토리
@@ -103,9 +151,9 @@ public class MainActivity extends AppCompatActivity {
                 wm.width=width;
                 wm.height=height-300;
                 kongventoryRv = beanventory.findViewById(R.id.kongventory_bean_rv);
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
-                kongventoryRv.setLayoutManager(linearLayoutManager);
-                kongventoryAdapter = new KongventoryAdapter(kvArrayList);
+                GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2, GridLayoutManager.VERTICAL, false);
+                kongventoryRv.setLayoutManager(gridLayoutManager);
+                kongventoryAdapter = new KongventoryAdapter(id,getApplicationContext(),kvArrayList);
                 kongventoryRv.setAdapter(kongventoryAdapter);
                 Log.d("arraylist",String.valueOf(arrayList.size()));
                 kongventoryAdapter.notifyDataSetChanged();
@@ -156,7 +204,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         shopDialog.dismiss();
+                        finish();
+                        startActivity(getIntent());
                     }
+
                 });
 
                 Log.d("리사이클러뷰","시작");
@@ -164,14 +215,12 @@ public class MainActivity extends AppCompatActivity {
                 recyclerView = (RecyclerView)shopDialog.findViewById(R.id.bean_rv);
                 Log.d("리사이클러뷰",recyclerView.toString());
                 GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2, GridLayoutManager.VERTICAL, false);
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
                 recyclerView.setLayoutManager(gridLayoutManager);
                 beansAdapter = new BeansAdapter(id,getApplicationContext(),arrayList);
 
                // beansAdapter = new BeansAdapter(arrayList);
                 recyclerView.setAdapter(beansAdapter);
-                Log.d("arraylist",String.valueOf(arrayList.size()));
-                beansAdapter.notifyDataSetChanged();
+
                // 각각의 콩들 클릭 이벤트
 //                CardView firstbean = shopDialog.findViewById(R.id.first_bean);
 //                firstbean.setOnClickListener(new View.OnClickListener() {

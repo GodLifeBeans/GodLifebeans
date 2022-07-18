@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.databinding.ActivityMealaddBinding;
+import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.sql.*;
@@ -34,7 +35,7 @@ public class MealAddActivity extends AppCompatActivity {
     private Uri photoUri;
     private static final String HOST = "192.249.19.168";
     private static final String PORT = "80";
-
+    private int add_id;
     ImageAddApi imageAddApi = RetrofitClientInstance.getRetrofitInstance().create(ImageAddApi.class);
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -69,34 +70,43 @@ public class MealAddActivity extends AppCompatActivity {
                     Meals meal = new Meals(binding.name.getText().toString(), id, tts.substring(0, 8), tts.substring(8, 12), binding.comment.getText().toString());
                     final int[] mid = new int[1];
                     //add meal object request
-                    imageAddApi.addMeal(meal).enqueue(new Callback<MealsAddResponse>() {
+                    imageAddApi.addMeal(meal).enqueue(new Callback<JsonObject>() {
                         @Override
-                        public void onResponse(Call<MealsAddResponse> call, Response<MealsAddResponse> response) {
-                            MealsAddResponse res = response.body();
-                            mid[0] = res.getResultid();
+                        public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                            if(response == null){
+                                Log.d("null", "null");
+                            }
+                            else{
+                                Log.d("type", String.valueOf(response.body().toString()));
+                                add_id = response.body().get("result").getAsInt();
+                            }
+                            Log.d("responsebody", response.toString());
+                            //mid[0] = res.getResultid();
+                            //System.out.println(mid[0]);
                         }
 
                         @Override
-                        public void onFailure(Call<MealsAddResponse> call, Throwable t) {
+                        public void onFailure(Call<JsonObject> call, Throwable t) {
                             Log.d("retrofit failure", "meal add failure");
                         }
                     });
-
+                    Log.d("add_id",String.valueOf(add_id));
                     //imageadd request
                     RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
                     MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("img", file.getName(), requestBody);
 
-                    imageAddApi.uploadImage(fileToUpload, new Meals_UriAdd(mid[0])).enqueue(new Callback<MealsResponse>() {
+                    imageAddApi.uploadImage(fileToUpload, add_id).enqueue(new Callback<JsonObject>() {
                         @Override
-                        public void onResponse(Call<MealsResponse> call, Response<MealsResponse> response) {
-                            MealsResponse res = response.body();
-                            if(res.isSuccess()){
+                        public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                            if(response.isSuccessful()){
                                 Toast.makeText(getApplicationContext(), "소중한 후기 감사합니다.", Toast.LENGTH_SHORT).show();
                                 finish();
+                            }else{
+                                Toast.makeText(getApplicationContext(), "등록에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                             }
                         }
                         @Override
-                        public void onFailure(Call<MealsResponse> call, Throwable t) {
+                        public void onFailure(Call<JsonObject> call, Throwable t) {
                             Toast.makeText(getApplicationContext(), "등록에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -114,6 +124,7 @@ public class MealAddActivity extends AppCompatActivity {
             if(resultCode == RESULT_OK){
                 Bitmap bitmap = null;
                 photoUri = data.getData();
+                Log.d("photoUri", String.valueOf(photoUri));
                 //이미지 띄우기
                 Glide.with(this.getApplicationContext()).load(photoUri).into(binding.image);
 
@@ -121,6 +132,7 @@ public class MealAddActivity extends AppCompatActivity {
                 assert cursor != null;
                 cursor.moveToFirst();
                 mediaPath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                Log.d("mediaPath", mediaPath);
 
             }
             else if(resultCode == RESULT_CANCELED){

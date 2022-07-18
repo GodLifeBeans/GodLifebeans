@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.Query;
 
 public class Meals {
     @SerializedName("meals_id")
@@ -55,10 +57,10 @@ public class Meals {
 interface ImageAddApi {
     @Multipart
     @POST("/meals/img")  //add picture to my meal sent
-    Call<MealsResponse> uploadImage(@Part MultipartBody.Part file, @Body Meals_UriAdd meal_id);
-    @GET("/add_meals")  //add my meal without image
-    Call<MealsAddResponse> addMeal(@Body Meals meal);
-    @GET("/get_meals")  //get my today meal -> recyclerview
+    Call<JsonObject> uploadImage(@Part MultipartBody.Part file, @Query("meals_id") int meals_id);
+    @POST("/add_meals")  //add my meal without image
+    Call<JsonObject> addMeal(@Body Meals meal);
+    @POST("/get_meals")  //get my today meal -> recyclerview
     Call<ArrayList<Meals>> getTodayMeals(@Body Meals_GetToday today);
     @POST("/verify_meals")  //verify my friend's meal -> add stamp to friend
     Call<MealsResponse> verifyFriendMeals(@Body Meals_verifyFriend verify);

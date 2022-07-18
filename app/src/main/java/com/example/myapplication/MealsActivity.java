@@ -71,7 +71,7 @@ public class MealsActivity extends AppCompatActivity {
         binding.plusbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MealsActivity.class);
+                Intent intent = new Intent(getApplicationContext(), MealAddActivity.class);
                 intent.putExtra("name", name);
                 intent.putExtra("id", id);
                 startActivity(intent);
