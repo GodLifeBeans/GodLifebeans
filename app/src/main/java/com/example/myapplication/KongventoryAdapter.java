@@ -84,7 +84,7 @@ public class KongventoryAdapter extends RecyclerView.Adapter<KongventoryAdapter.
             public void onClick(View view) {
                 Activity activity = unwrap(parentContext);
                 LinearLayout linearLayout   =(LinearLayout)(activity).findViewById(R.id.main_view);
-              LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(50,50 );
+              LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(500,500 );
                 ImageView iv = new ImageView(applicationContext);  // 새로 추가할 imageView 생성
                 iv.setLayoutParams(layoutParams);
                 iv.setImageResource(arrayList.get(position).getBenas_img());

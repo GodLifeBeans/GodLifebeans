@@ -35,7 +35,7 @@ public class MealAddActivity extends AppCompatActivity {
     private Uri photoUri;
     private static final String HOST = "192.249.19.168";
     private static final String PORT = "80";
-    private int add_id;
+     int add_id;
     ImageAddApi imageAddApi = RetrofitClientInstance.getRetrofitInstance().create(ImageAddApi.class);
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -73,16 +73,28 @@ public class MealAddActivity extends AppCompatActivity {
                     imageAddApi.addMeal(meal).enqueue(new Callback<JsonObject>() {
                         @Override
                         public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                            if(response == null){
-                                Log.d("null", "null");
-                            }
-                            else{
-                                Log.d("type", String.valueOf(response.body().toString()));
-                                add_id = response.body().get("result").getAsInt();
-                            }
-                            Log.d("responsebody", response.toString());
-                            //mid[0] = res.getResultid();
-                            //System.out.println(mid[0]);
+                            add_id = response.body().get("result").getAsInt();
+
+                            //image add request
+                            RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
+                            MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("img", file.getName(), requestBody);
+
+                            imageAddApi.uploadImage(fileToUpload, add_id).enqueue(new Callback<JsonObject>() {
+                                @Override
+                                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                                    if(response.isSuccessful()){
+                                        Toast.makeText(getApplicationContext(), "소중한 후기 감사합니다.", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }else{
+                                        Toast.makeText(getApplicationContext(), "등록에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                                @Override
+                                public void onFailure(Call<JsonObject> call, Throwable t) {
+                                    Toast.makeText(getApplicationContext(), "등록에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
                         }
 
                         @Override
@@ -90,26 +102,7 @@ public class MealAddActivity extends AppCompatActivity {
                             Log.d("retrofit failure", "meal add failure");
                         }
                     });
-                    Log.d("add_id",String.valueOf(add_id));
-                    //imageadd request
-                    RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
-                    MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("img", file.getName(), requestBody);
 
-                    imageAddApi.uploadImage(fileToUpload, add_id).enqueue(new Callback<JsonObject>() {
-                        @Override
-                        public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                            if(response.isSuccessful()){
-                                Toast.makeText(getApplicationContext(), "소중한 후기 감사합니다.", Toast.LENGTH_SHORT).show();
-                                finish();
-                            }else{
-                                Toast.makeText(getApplicationContext(), "등록에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        @Override
-                        public void onFailure(Call<JsonObject> call, Throwable t) {
-                            Toast.makeText(getApplicationContext(), "등록에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
                 }
                 else{
                     Toast.makeText(getApplicationContext(), "please add image", Toast.LENGTH_LONG).show();
