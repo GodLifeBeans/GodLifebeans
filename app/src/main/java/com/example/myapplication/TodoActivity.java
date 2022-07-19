@@ -185,18 +185,16 @@ public class TodoActivity  extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int size =arrayList.size();
-                for (int i = 0 ; i<size; i++){
-                    Todo add = arrayList.get(i);
-                    Log.d("todo",user_id+add.getContent()+add.isCompleted()+Date);
+                int size = arrayList.size();
+                if (size == 0) {
                     RequestQueue requestQueue = Volley.newRequestQueue(TodoActivity.this);
-                    String uri = String.format("http://"+HOST+"/insert_todo?user_id="+user_id+"&content="+add.getContent()+"&complete="+add.isCompleted()+"&date="+Date);
+                    String uri = String.format("http://" + HOST + "/delete_todo?user_id=" + user_id + "&date=" + Date);
                     StringRequest stringRequest = new StringRequest(Request.Method.POST, uri, new Response.Listener() {
                         @Override
                         public void onResponse(Object response) {
                             try {
                                 JSONObject jsonObject = new JSONObject(response.toString());
-                                Log.d("response",jsonObject.toString());
+                                Log.d("response", jsonObject.toString());
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -204,15 +202,41 @@ public class TodoActivity  extends AppCompatActivity {
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.d("볼리에러","에러");
+                            Log.d("볼리에러", "에러");
                         }
                     });
                     requestQueue.add(stringRequest);
+                } else {
+                    for (int i = 0; i < size; i++) {
+                        Todo add = arrayList.get(i);
+                        Log.d("todo", user_id + add.getContent() + add.isCompleted() + Date);
+                        RequestQueue requestQueue = Volley.newRequestQueue(TodoActivity.this);
+                        String uri = String.format("http://" + HOST + "/insert_todo?user_id=" + user_id + "&content=" + add.getContent() + "&complete=" + add.isCompleted() + "&date=" + Date);
+                        StringRequest stringRequest = new StringRequest(Request.Method.POST, uri, new Response.Listener() {
+                            @Override
+                            public void onResponse(Object response) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response.toString());
+                                    Log.d("response", jsonObject.toString());
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.d("볼리에러", "에러");
+                            }
+                        });
+                        requestQueue.add(stringRequest);
+                    }
+
                 }
             }
         });
 
     }
+
     private String getTime() {
         long now = System.currentTimeMillis();
         java.util.Date date = new Date(now);

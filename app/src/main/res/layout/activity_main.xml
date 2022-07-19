@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background"
+    android:background="@drawable/backgroud"
     tools:context=".MainActivity"
     android:orientation="vertical"
     android:padding="20dp">
@@ -14,12 +14,21 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:orientation="horizontal">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
         <Button
+            android:id="@+id/my_stamp"
+            android:fontFamily="@font/nanumsquareroundeb"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="10dp"
+            android:text="2"
+            android:textSize="15dp" />
+
+
+        <Button
+            android:layout_marginLeft="10dp"
             android:id="@+id/congventory"
+            android:fontFamily="@font/nanumsquareroundeb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="콩벤토리"/> >
@@ -27,41 +36,52 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1" />
-        <ImageView
+            android:layout_marginHorizontal="50dp"/>
+        <Button
             android:id="@+id/goto_friends"
-            android:layout_width="wrap_content"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:src="@drawable/imageadd" />
+            />
     </LinearLayout>
+
     <FrameLayout
-        android:orientation="vertical"
         android:id="@+id/main_view"
         android:layout_width="match_parent"
-        android:layout_height="550dp">
+        android:layout_height="550dp"
+        android:orientation="vertical">
 
 
     </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:orientation="horizontal"
         android:layout_height="60dp">
-        <Button
+                <Button
             android:id="@+id/goto_wakeup_btn"
+            android:fontFamily="@font/nanumsquareroundeb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="기상"/>
+
+
         <Button
             android:id="@+id/goto_todo_btn"
+            android:fontFamily="@font/nanumsquareroundeb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Todo"/>
+
+
         <Button
+            android:fontFamily="@font/nanumsquareroundeb"
             android:id="@+id/goto_beanshop_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="콩 상점"/>
+
         <Button
+            android:fontFamily="@font/nanumsquareroundeb"
             android:id="@+id/goto_meals_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

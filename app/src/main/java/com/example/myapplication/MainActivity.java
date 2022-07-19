@@ -37,9 +37,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity  implements OnItemClick {
-    Button goto_todo_btn;
-    Button goto_wakeup_btn;
-    Button goto_beanshop_btn;
+    ImageView goto_todo_btn;
+    ImageView goto_wakeup_btn;
+    ImageView goto_beanshop_btn;
     //intent로 받아온 값
     ImageView bean_img;
     float previous_x = 0;
@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity  implements OnItemClick {
     float x = 100;
     float y =100;
     int count =1;
+    private ImageView iviv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +73,8 @@ public class MainActivity extends AppCompatActivity  implements OnItemClick {
         String name=intent.getStringExtra("nickname");
         String id = intent.getStringExtra("kakao_id");
 
+        //my_Stamp
+        Button my_stamp = (Button)findViewById(R.id.my_stamp);
 
 
         Log.d("profile, name, id", ""+profileImage+name+id);
@@ -82,7 +85,7 @@ public class MainActivity extends AppCompatActivity  implements OnItemClick {
         Button goto_beanshop_btn = (Button)findViewById(R.id.goto_beanshop_btn);
         Button congventory = (Button)findViewById(R.id.congventory);
         Button goto_meal_btn = (Button)findViewById(R.id.goto_meals_btn);
-        ImageView goto_friends = (ImageView)findViewById(R.id.goto_friends);
+        Button goto_friends = (Button)findViewById(R.id.goto_friends);
 
         goto_friends.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,8 +101,12 @@ public class MainActivity extends AppCompatActivity  implements OnItemClick {
                 view.setOnTouchListener(new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View view, MotionEvent motionEvent) {
-                        Log.d("x좌표", String.valueOf(motionEvent.getX()));
-                        Log.d("y좌표",String.valueOf(motionEvent.getY()));
+                       int id =  view.getId();
+                       Log.d("id", String.valueOf(id));
+
+                       // Toast.makeText(MainActivity.this, "Onclick호출",Toast.LENGTH_SHORT).show();
+                      //  Log.d("x좌표", String.valueOf(motionEvent.getX()));
+                      //  Log.d("y좌표",String.valueOf(motionEvent.getY()));
 //                bean_img.setX(motionEvent.getX());
 //                bean_img.setY(motionEvent.getY());
                         return false;
@@ -193,14 +200,27 @@ public class MainActivity extends AppCompatActivity  implements OnItemClick {
                         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(500,500 );
                         iv.setLayoutParams(layoutParams);
                         iv.setImageResource(Integer.parseInt(name));
+
+                        //id부여
+                        iv.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                iviv = iv;
+                            }
+                        });
+                        if (x !=0 && y !=0) {
+                            x= (float) jsonArray.getJSONObject(i).getDouble("location_x");
+                            y= (float) jsonArray.getJSONObject(i).getDouble("location_y");
+                        }
+                        else{
+                            x=x+100;
+                            y=y+100;
+                        }
                         iv.setX(x);
                         iv.setY(y);
                         iv.setId(count);
+                        iv.getId();
                         frameLayout.addView(iv);
-                        x=x+100;
-                        y=y+100;
-                        iv.setOnClickListener(listener);
-
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -216,6 +236,7 @@ public class MainActivity extends AppCompatActivity  implements OnItemClick {
         requestQueue1.add(stringRequest1);
 
 //        ImageView img = (ImageView)frameLayout.findViewById(23);
+
 
         //콩벤토리
         congventory.setOnClickListener(new View.OnClickListener() {
@@ -327,8 +348,43 @@ public class MainActivity extends AppCompatActivity  implements OnItemClick {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 Log.d("x좌표", String.valueOf(motionEvent.getX()));
                 Log.d("y좌표",String.valueOf(motionEvent.getY()));
-//                bean_img.setX(motionEvent.getX());
-//                bean_img.setY(motionEvent.getY());
+
+                if(iviv != null) {
+                    iviv.setX(motionEvent.getX() - iviv.getWidth() / 2);
+                    iviv.setY(motionEvent.getY() - iviv.getHeight() / 2);
+
+                    float location_x = motionEvent.getX() - iviv.getWidth() / 2;
+                    float location_y = motionEvent.getY() - iviv.getHeight() / 2;
+                    Log.d("id", String.valueOf(iviv.getId()));
+                    Log.d("id, + 위치 ",location_x+"위치"+location_y);
+
+                    RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+                    String uri1 = String.format("http://" + HOST + "/set_beans_location?beans_id=" + iviv.getId() + "&location_x=" + location_x + "&location_y=" + location_y);
+                    StringRequest stringRequest1 = new StringRequest(Request.Method.POST, uri1, new Response.Listener() {
+                        @Override
+                        public void onResponse(Object response) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response.toString());
+                                Log.d("response", jsonObject.toString());
+                                JSONArray jsonArray = jsonObject.getJSONArray("result");
+                                Log.d("result", jsonArray.toString());
+                                Log.d("result size", String.valueOf(jsonArray.length()));
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Log.d("오류", "여긴가?");
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("볼리에러", error.toString());
+                        }
+                    });
+                    requestQueue.add(stringRequest1);
+                }
+
+                iviv = null;
                 return false;
             }
         });
@@ -347,7 +403,7 @@ public class MainActivity extends AppCompatActivity  implements OnItemClick {
                 int touch_x = (int)event.getX();
                 int touch_y = (int)event.getY();
 
-                ObjectAnimator smileX = ObjectAnimator.ofFloat(bean_img, "translationX", previous_x, touch_x);
+                ObjectAnimator smileX = ObjectAnimator. ofFloat(bean_img, "translationX", previous_x, touch_x);
                 smileX.start();
 
                 ObjectAnimator smileY = ObjectAnimator.ofFloat(bean_img, "translationY", previous_y, touch_x);

@@ -77,6 +77,52 @@ public class WakeupActivity extends AppCompatActivity {
         Intent intent = getIntent();
         user_id = intent.getStringExtra("id");
 
+
+        RequestQueue requestQueue = Volley.newRequestQueue(WakeupActivity.this);
+        String uri = String.format("http://" + HOST + "/show_wakeup?user_id=" + user_id + "&date=" + Date);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, uri, new com.android.volley.Response.Listener() {
+            @Override
+            public void onResponse(Object response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response.toString());
+                    Log.d("response", jsonObject.toString());
+                    JSONArray jsonArray = jsonObject.getJSONArray("result");
+                    JSONObject jsonObject1 = jsonArray.getJSONObject(0);
+                    String url = jsonObject1.getString("wakeup_img");
+                    String time = jsonObject1.getString("wakeup_time");
+                    Log.d("date", Date);
+                    Log.d("url", url);
+                    Log.d("time", time);
+                    if (time!=null){
+                        choiceWakeup.setText(time);
+                    }
+                    else{
+                        choiceWakeup.setText("시간을 선택하세요");
+                    }
+                    if (url!=null){
+                        Glide.with(getApplicationContext()).load(url).into(wakeup_img);
+                    }
+                    else{
+                        wakeup_img.setImageResource(R.drawable.wandos);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    choiceWakeup.setText("시간을 선택하세요");
+                    wakeup_img.setImageResource(R.drawable.wandos);
+                    Log.d("오류", "여긴가?");
+                }
+            }
+        }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                choiceWakeup.setText("시간을 선택하세요");
+                wakeup_img.setImageResource(R.drawable.wandos);
+                Log.d("볼리에러", error.toString());
+            }
+        });
+        requestQueue.add(stringRequest);
+
+
         //저장 버튼
         save_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,12 +175,12 @@ public class WakeupActivity extends AppCompatActivity {
                                 Glide.with(getApplicationContext()).load(url).into(wakeup_img);
                             }
                             else{
-                             wakeup_img.setImageResource(R.drawable.background);
+                             wakeup_img.setImageResource(R.drawable.wandos);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                             choiceWakeup.setText("시간을 선택하세요");
-                            wakeup_img.setImageResource(R.drawable.background);
+                            wakeup_img.setImageResource(R.drawable.wandos);
                             Log.d("오류", "여긴가?");
                         }
                     }
@@ -142,7 +188,7 @@ public class WakeupActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         choiceWakeup.setText("시간을 선택하세요");
-                        wakeup_img.setImageResource(R.drawable.background);
+                        wakeup_img.setImageResource(R.drawable.wandos);
                         Log.d("볼리에러", error.toString());
                     }
                 });
