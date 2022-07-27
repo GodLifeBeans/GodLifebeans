@@ -39,7 +39,6 @@ splash 화면에서부터 귀여운 콩들을 경험하세요!
 
 
 ## 사용한 개발 언어
-<br> <br /> 
 
 ### 서버 : Node.js
 ### 프론트 : Android Studio
