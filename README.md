@@ -1,5 +1,5 @@
 # GodLifebeans
-<br> <br /> 
+
 
 ## Intro 
 친구와 같이 사는 갓생 갓생즈를 소개합니다.
